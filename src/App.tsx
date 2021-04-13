@@ -1,7 +1,9 @@
 import React from "react";
 import "./App.css";
 import { useQuery, gql } from "@apollo/client";
-import playersConfig from './config/players';
+import playersConfig from "./config/players";
+
+import PlayersList from "./components/PlayersList/PlayersList";
 
 const players = gql`
   query PlayersQuery($players: [String!]!, $cursor: String) {
@@ -19,7 +21,7 @@ const players = gql`
             rarity
             price
             tradeableStatus
-            publicSingleBuyOfferMinPrice{
+            publicSingleBuyOfferMinPrice {
               amount
             }
             latestAuction {
@@ -44,7 +46,7 @@ const players = gql`
 export default function App() {
   const { loading, error, data, fetchMore } = useQuery(players, {
     variables: {
-      players: playersConfig.slugs
+      players: playersConfig.slugs,
     },
     //pollInterval: 1000
   });
@@ -55,30 +57,11 @@ export default function App() {
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error :(</p>;
-  console.log(data)
+  console.log(data);
+
   return (
     <div className="App">
-      { data.players.map(
-        (player: any, key: number) => (
-          <div key={ key }>
-            <div>
-              <img src={ player.pictureUrl } width="200" alt=""/>
-              <div>{ player.displayName }</div>
-            </div>
-            <div>
-              { player.cards.edges.map(
-                ({ node } : any, key: number) => (
-                  node.tradeableStatus === 'YES' &&
-                  <div key={ key }>
-                    {node.price}
-                  </div>
-                )
-              ) }
-            </div>
-
-          </div>
-        )
-      ) }
+      <PlayersList players={data.players} />
     </div>
   );
 }
